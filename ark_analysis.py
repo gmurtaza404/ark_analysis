@@ -3,6 +3,13 @@ from trace import Trace
 
 dest_path_length = {}
 
+def ip_to_24subnet(ip):
+    ip = ip.split(".")
+    ip[len(ip)-1] = "0"
+    return ".".join(ip)
+
+
+
 def dict_add(key,value):
     if key not in dest_path_length:
         dest_path_length[key] = []
@@ -20,11 +27,12 @@ def parse_data(file_name):
             elif line[0] != "#":
                 temp_trace = Trace()
                 temp_trace.parse_sc_analysis_dump_line(line)
-                dict_add(temp_trace.dest_addr,temp_trace.path_length)
+                dict_add( ip_to_24subnet(temp_trace.dest_addr) ,temp_trace.path_length)
 
 
 def main():
     # crawl module directory
+    
     root_directory = os.getcwd()
     
     os.chdir("module_anc") # TODO fix this hardcode
@@ -42,14 +50,14 @@ def main():
 
     
     #print "Total Unique Addresses :" , len(dest_path_length.keys())
+    count = 0
     for key in dest_path_length.keys():
         if len(dest_path_length[key]) > 1:
-            print dest_path_length[key]
-    
+            count += 1
+    print count    
     os.chdir(root_directory)
 
-
-
+    
 main()
 
 
