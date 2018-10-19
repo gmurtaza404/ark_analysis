@@ -1,4 +1,4 @@
-import os,urllib2,json
+import os,urllib2,json,socket,time
 from bs4 import BeautifulSoup
 from collections import deque
 
@@ -39,18 +39,27 @@ def main():
     while len(all_links):
         link = all_links.popleft()
         print link
-        child_links, child_files = filter_a_tags(BeautifulSoup((urllib2.urlopen(link)),"html.parser"), link)
+        while True:    
+            try:
+                child_links, child_files = filter_a_tags(BeautifulSoup((urllib2.urlopen(link)),"html.parser"), link)
+                break
+            except socket.error as error:
+                print error
+                time.sleep(10)
+
+
         for link in child_links:
             all_links.append(link)
     
         for link in child_files:
             child_links.append(link)
-
+    
+    
     with open("all_files.txt", "wb") as f:
         f.write(json.dumps(all_files))
     
     print all_files
-    
+
     """
     for link in all_links:
         child_links, child_files = filter_a_tags(BeautifulSoup((urllib2.urlopen(link)),"html.parser"), link)
