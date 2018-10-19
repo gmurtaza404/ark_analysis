@@ -11,10 +11,17 @@ def ip_to_24subnet(ip):
 
 
 def dict_add(key,value):
+    try:
+        tmp = dest_path_length[key]
+        dest_path_length[key] = tmp + [value]     
+    except KeyError:
+        dest_path_length[key] = [value]
+
+    """
     if key not in dest_path_length:
         dest_path_length[key] = []
     dest_path_length[key] = dest_path_length[key] + [value]
-
+    """
 
 
 
