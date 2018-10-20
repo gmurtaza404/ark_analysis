@@ -41,30 +41,25 @@ def main():
         print link
         while True:    
             try:
-                child_links, child_files = filter_a_tags(BeautifulSoup((urllib2.urlopen(link)),"html.parser"), link)
+                child_links, child_files = filter_a_tags(BeautifulSoup((urllib2.urlopen(link,timeout=10)),"html.parser"), link)
                 break
-            except socket.error as error:
-                print error
+            except:
+                print "failed!"
                 time.sleep(10)
 
 
         for link in child_links:
             all_links.append(link)
+
+        with open("all_files.txt", "a") as f:
+            for link in child_files:
+                f.write(link + "\n")
+                child_links.append(link)
     
-        for link in child_files:
-            child_links.append(link)
-    
-    
-    with open("all_files.txt", "wb") as f:
+    with open("all_files_json.txt", "wb") as f:
         f.write(json.dumps(all_files))
     
     print all_files
-
-    """
-    for link in all_links:
-        child_links, child_files = filter_a_tags(BeautifulSoup((urllib2.urlopen(link)),"html.parser"), link)
-        print child_links, child_files
-    """
 
 main()
 
