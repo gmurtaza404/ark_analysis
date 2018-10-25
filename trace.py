@@ -1,3 +1,24 @@
+class FileDescriptor(object):
+    """
+        1. List ID      (uint)
+        2. Team ID      (uint)
+        3. Cycle ID     (unit)
+        4. Date         (string)
+        5. Module Name  (string)
+        6. Name         (string)
+    """
+    def __init__(self,l_id,t_id,c_id,date,m_name, name):
+        self.list_id = l_id
+        self.team_id = t_id
+        self.cycle_id = c_id
+        self.date_string = date
+        self.module_name = m_name
+        self.name = name
+    def p_print(self):
+        print "List ID: {}\nTeam ID: {}\nCycle ID: {}\nDate: {}\nModule Name: {}".format(self.list_id,self.team_id,self.cycle_id,self.date_string,self.module_name)
+        print "File Name: {}".format(self.name)
+        
+
 class Destination(object):
     """
         Destination object contains three fields
