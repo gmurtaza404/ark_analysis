@@ -65,7 +65,7 @@ def main():
     os.chdir(root_directory)
 
     
-main()
+#main()
 
 
 

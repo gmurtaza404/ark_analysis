@@ -9,11 +9,13 @@
 26718937
 26847102
 """
-
-import os,urllib
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+import os,urllib,json
 from trace import FileDescriptor,Trace
 from sets import Set
-
+from ark_analysis import ip_to_24subnet
 # Globals
 TEAMS = ["team-1","team-2","team-3"]
 YEARS = ["2007", "2008", "2009", "2010", "2011","2012","2013","2014","2015","2016","2017"]
@@ -188,15 +190,73 @@ def main():
     union_of_all = Set([])
     intersection_of_all = Set([])
     total = 0
-    for cycle_list in os.listdir("."):
-        with open(cycle_list, "rb") as f:
-            print cycle_list
-            temp_set = Set(f.read().split("\n"))
-            total = total + len(temp_set)
-            #union_of_all = union_of_all.union(temp_set)
-            #intersection_of_all = intersection_of_all.intersection(temp_set)
-    print total
+    total_2 = 0
+    total_3 = 0
+    total_4 = 0
+    total_5 = 0
+    all_count = []
+    dict_count = {}
 
+    # for cycle_list in os.listdir("."):
+    #     with open(cycle_list, "rb") as f:
+    #         print cycle_list
+    #         temp_set = f.read().split("\n")
+    #         temp_set.pop()
+    #         for ip in temp_set:
+    #             ip = ip_to_24subnet(ip)
+    #             try:
+    #                 dict_count[ip] += 1
+    #             except KeyError:
+    #                 dict_count[ip] = 1
+    
+    with open("../dict_count_24.json", "rb") as f:
+        dict_count = json.loads(f.read())
+    
+    for key in dict_count.keys():
+        all_count.append(dict_count[key])
+        # if dict_count[key] == 2:
+        #     total_2 += 1
+        # if dict_count[key] == 3:
+        #     total_3 += 1
+        # if dict_count[key] == 4:
+        #     total_4 += 1
+        # if dict_count[key] == 5:
+        #     total_5 += 1
+    
+    all_count = np.array(all_count)
+    print len(all_count)
+    count_array = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+    for count in all_count:
+        count_array[count-1] += 1
+    print count_array
+"""
+    Analysis:
+        Data from 1st January 2017 - 28th April 2017
+        containing files of 106 cycles
+        Total unique IPs probed 26,847,102
+        Total Repeated IPs 127,666
+              Repeated 2 Times -> 127273
+              Repeated 3 Times -> 392
+              Repeated 4 Times -> 1
+              Repeated 5 Times -> 0
+        No apparent repition in 4 months worth of data.
+    Analysis on /24 subnets.
+        Data from 1st January 2017 - 28th April 2017
+        containing files of 106 cycles
+        Total Unique /24 Subnets 10,019,550
+        No repetitions -> 2,286,996
+        Repeated 2 Times -> 2,848,270
+        Repeated 3 Times -> 2,360,916
+        Repeated 4 Times -> 1,420,166
+        Repeated 5 Times -> 701,252
+        Repeated 6 Times -> 271,581
+        Repeated 7 Times -> 92,476
+        Repeated 8 Times -> 27,863
+        Repeated 10 Times -> 7,280
+        Repeated 11 Times -> 1,716
+        Repeated 12 Times -> 1,022
+        Repeated 13 Times -> 12
+"""
     
 
 
