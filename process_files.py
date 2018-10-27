@@ -6,13 +6,12 @@
         3. filter_file_by_team_and_year() this function divides the data of a team into years.
         4. find_unique_modules() this function returns a list of modules that are unique in a given file.
         5. find_files_of_module() this function returns all files that belong to the given module name in the given file.
-26718937
-26847102
 """
 import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 import os,urllib,json
+from multiprocessing import Pool
 from trace import FileDescriptor,Trace
 from sets import Set
 from ark_analysis import ip_to_24subnet
@@ -96,7 +95,8 @@ def get_unique_ips(path_to_file):
             elif line[0] != "#":
                 temp_trace = Trace()
                 temp_trace.parse_sc_analysis_dump_line(line)
-                unique_ips.add(temp_trace.dest_addr)
+                if temp_trace.dest_replied == "R":
+                    unique_ips.add(temp_trace)
     return unique_ips
 
 
@@ -137,6 +137,19 @@ def process_files_in_folder_for_unique_ips(path_to_folder):
 
 
 
+def pool_function(cycle_name):
+    print cycle_name
+    cycle_unique_traces = process_files_in_folder_for_unique_ips(cycle_name)
+    cycle_unique_traces = list(cycle_unique_traces)
+    if len(cycle_unique_traces) == 0:
+        return False
+    with open("../cycle_ip_lists/{}.txt".format(cycle_name), "wb") as f:
+        for trace in cycle_unique_traces:
+            f.write(trace.dest_addr+ "," + str(trace.path_length) + "\n")
+    return True
+
+
+
 
 
 def main():
@@ -154,11 +167,11 @@ def main():
     # print all_modules
     # team_1_anc_us_files = find_files_of_module("./team-1/2017.txt", "anc-us")
     # print len(team_1_anc_us_files)
-    # write_list_to_file("./team-1/team1-anc-us-files.txt",team_1_anc_us_files)
+    # #write_list_to_file("./team-1/team1-anc-us-files.txt",team_1_anc_us_files)
     # root = os.getcwd()
     # os.chdir("team-1")
     # if not os.path.exists("analysis"):
-	# 	os.makedirs("analysis")
+	#     os.makedirs("analysis")
     # os.chdir("analysis")
 
     # for link in team_1_anc_us_files:
@@ -167,34 +180,49 @@ def main():
     #     #print f_d.cycle_id
     #     if not os.path.exists(f_d.cycle_id):
 	# 	    os.makedirs(f_d.cycle_id)
+    #     os.chdir(f_d.cycle_id)
         
-    #     print "Downloading to ... -> ./{}/{}".format(f_d.cycle_id,f_d.name)
-    #     urllib.urlretrieve(link, "./{}/{}".format(f_d.cycle_id,f_d.name))
-
+    #     file_name_without_gz = f_d.name.split(".")
+    #     file_name_without_gz.pop()
+    #     file_name_without_gz = ".".join(file_name_without_gz)
+            
+    #     if f_d.name in os.listdir(".") or file_name_without_gz in os.listdir("."):
+    #         print "Already downloaded {}".format(f_d.name)
+    #     else:
+    #         print "Downloading {}".format(f_d.name)
+    #         os.system("axel -q {}".format(link))
+    #     os.chdir("..")
+        
     # os.chdir(root)
     # s1 = process_warts_file_for_unique_ips("./team-1/analysis/c005344/daily.l7.t1.c005344.20170101.anc-us.warts")
     # s2 = process_warts_file_for_unique_ips("./team-1/analysis/c005344/daily.l7.t1.c005344.20170102.anc-us.warts")
     
     # print len(s1) , len(s2), len(s1.union(s2)) , len(s1) + len(s2)
     os.chdir("./team-1/cycle_ip_lists")
-    # print os.listdir(".")
-    # for cycle_name in os.listdir("."):
-    #     print cycle_name
-    #     cycle_unique_ips = process_files_in_folder_for_unique_ips(cycle_name)
-    #     cycle_unique_ips = list(cycle_unique_ips)
-    #     if len(cycle_unique_ips) == 0:
-    #         continue
-    #     with open("../cycle_ip_lists/{}.txt".format(cycle_name), "wb") as f:
-    #         for ip in cycle_unique_ips:
-    #             f.write(ip + "\n")
-    union_of_all = Set([])
-    intersection_of_all = Set([])
-    total = 0
-    total_2 = 0
-    total_3 = 0
-    total_4 = 0
-    total_5 = 0
-    all_count = []
+    # cycle_unique_ips = list(process_files_in_folder_for_unique_ips("c005344"))
+    # count = 0
+    # for path in cycle_unique_ips:
+    #     print path.path_length, path.request_ttl, (64 -int(path.reply_ttl))
+    # print count, len(cycle_unique_ips)
+
+    # for x in range(2000):
+    #     if cycle_unique_ips[x].path_complete == "C":
+    #         print cycle_unique_ips[x].dest_addr,cycle_unique_ips[x].dest_replied, cycle_unique_ips[x].path_complete
+    #         cycle_unique_ips[x].p_print()
+    #print count, len(cycle_unique_ips)
+    # all_cycles = os.listdir(".")
+    # p = Pool(4)
+    # print (p.map(pool_function, all_cycles))
+    # print "done"
+    # union_of_all = Set([])
+    
+    # intersection_of_all = Set([])
+    # total = 0
+    # total_2 = 0
+    # total_3 = 0
+    # total_4 = 0
+    # total_5 = 0
+    # all_count = []
     dict_count = {}
 
     # for cycle_list in os.listdir("."):
@@ -202,44 +230,42 @@ def main():
     #         print cycle_list
     #         temp_set = f.read().split("\n")
     #         temp_set.pop()
-    #         for ip in temp_set:
-    #             ip = ip_to_24subnet(ip)
+    #         for item in temp_set:
+    #             ip, path_length = item.split(",")
+    #             #print ip, path_length
+
+    #             # ip = ip_to_24subnet(ip)
     #             try:
-    #                 dict_count[ip] += 1
+    #                 dict_count[ip].append(path_length)
     #             except KeyError:
-    #                 dict_count[ip] = 1
+    #                 dict_count[ip] = [path_length]
     
-    with open("../dict_count_24.json", "rb") as f:
+    with open("../dict_count_path_len.json", "rb") as f:
         dict_count = json.loads(f.read())
-    
-    for key in dict_count.keys():
-        all_count.append(dict_count[key])
-        # if dict_count[key] == 2:
-        #     total_2 += 1
-        # if dict_count[key] == 3:
-        #     total_3 += 1
-        # if dict_count[key] == 4:
-        #     total_4 += 1
-        # if dict_count[key] == 5:
-        #     total_5 += 1
-    
-    all_count = np.array(all_count)
-    print len(all_count)
+    #count = 0
+    # for key in dict_count.keys():
+    #     if len(dict_count[key]) == 1:
+    #         count += 1
+    #         #print key, dict_count[key]
+    # print len(dict_count.keys()), count
+    # all_count = np.array(all_count)
+    # print len(all_count)
     count_array = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-    for count in all_count:
-        count_array[count-1] += 1
+    for key in dict_count:
+         count_array[len(dict_count[key])-1] += 1
     print count_array
 """
     Analysis:
         Data from 1st January 2017 - 28th April 2017
         containing files of 106 cycles
-        Total unique IPs probed 26,847,102
+        Total unique IPs 26,847,102
         Total Repeated IPs 127,666
               Repeated 2 Times -> 127273
               Repeated 3 Times -> 392
               Repeated 4 Times -> 1
               Repeated 5 Times -> 0
-        No apparent repition in 4 months worth of data.
+        No apparent repetitions in 4 months worth of data.
+        
     Analysis on /24 subnets.
         Data from 1st January 2017 - 28th April 2017
         containing files of 106 cycles
@@ -257,7 +283,22 @@ def main():
         Repeated 12 Times -> 1,022
         Repeated 13 Times -> 12
 """
-    
+"""
+    Analysis:
+        Data from 1st January 2017 to 3rd October 2017 for probe anc-us
+        This data contained 232 cycles
+        Additional filters:
+            1. Traces with non responsive destinations filtered
+        Total Unique IPs: 7900962
+        Total IPs with at least 2 repetitions: 67961
+        No repetitions -> 7833001
+        Repeated 2 Times -> 67529
+        Repeated 3 Times -> 429
+        Repeated 4 Times -> 3
+        Repeated 5 Times -> 0
+        Repeated 6 Times -> 0
+
+"""
 
 
 main()
