@@ -19,6 +19,28 @@ from ark_analysis import ip_to_24subnet
 TEAMS = ["team-1","team-2","team-3"]
 YEARS = ["2007", "2008", "2009", "2010", "2011","2012","2013","2014","2015","2016","2017"]
 
+def ipstring_to_ipbin(ip):
+    ip = ip.split(".")
+    ret_binary = ""
+    for part in ip:
+        part = int(part)
+        bin_part =  '0'*(8-len(bin(part)[2:]))+bin(part)[2:]
+        ret_binary = ret_binary + bin_part
+    return ret_binary
+def generate_subnet_mask(length):
+    return '1'*(length)+'0'*(32-length)
+def apply_mask(ip, subnet_mask):
+    ip = int(ip,2)
+    subnet_mask = int(subnet_mask,2)
+    int_representation = ip&subnet_mask
+    return '0'*(32-len(bin(int_representation)[2:]))+bin(int_representation)[2:]
+def ipbin_to_ipstring(ip):
+    ret_string = []
+    for x in xrange(0,32,8):
+        ret_string.append(str(int(ip[x:x+8],2)))
+    return ".".join(ret_string)
+def apply_mask_on_ip_string(ip,mask_length):
+    return ipbin_to_ipstring(apply_mask(ipstring_to_ipbin(ip),generate_subnet_mask(mask_length)))
 
 def load_file(file_name):
     ret_list = []
@@ -225,23 +247,21 @@ def main():
     # all_count = []
     dict_count = {}
 
-    # for cycle_list in os.listdir("."):
-    #     with open(cycle_list, "rb") as f:
-    #         print cycle_list
-    #         temp_set = f.read().split("\n")
-    #         temp_set.pop()
-    #         for item in temp_set:
-    #             ip, path_length = item.split(",")
-    #             #print ip, path_length
-
-    #             # ip = ip_to_24subnet(ip)
-    #             try:
-    #                 dict_count[ip].append(path_length)
-    #             except KeyError:
-    #                 dict_count[ip] = [path_length]
+    for cycle_list in os.listdir("."):
+        with open(cycle_list, "rb") as f:
+            print cycle_list
+            temp_set = f.read().split("\n")
+            temp_set.pop()
+            for item in temp_set:
+                ip, path_length = item.split(",")
+                ip = apply_mask_on_ip_string(ip,29)
+                try:
+                    dict_count[ip].append(path_length)
+                except KeyError:
+                    dict_count[ip] = [path_length]
     
-    with open("../dict_count_path_len.json", "rb") as f:
-        dict_count = json.loads(f.read())
+    # with open("../dict_count_path_len.json", "rb") as f:
+    #     dict_count = json.loads(f.read())
     #count = 0
     # for key in dict_count.keys():
     #     if len(dict_count[key]) == 1:
@@ -253,7 +273,7 @@ def main():
     count_array = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
     for key in dict_count:
          count_array[len(dict_count[key])-1] += 1
-    print count_array
+    print sum(count_array) ,count_array
 """
     Analysis:
         Data from 1st January 2017 - 28th April 2017
@@ -288,7 +308,7 @@ def main():
         Data from 1st January 2017 to 3rd October 2017 for probe anc-us
         This data contained 232 cycles
         Additional filters:
-            1. Traces with non responsive destinations filtered
+            1. Traces with non responsive destinations were filtered
         Total Unique IPs: 7900962
         Total IPs with at least 2 repetitions: 67961
         No repetitions -> 7833001
@@ -297,14 +317,41 @@ def main():
         Repeated 4 Times -> 3
         Repeated 5 Times -> 0
         Repeated 6 Times -> 0
+        
+
+        With /31 Subnet
+        Total Unique Subnets: 7847204
+        No repetitions -> 7726471 
+        Repeated 2 Times -> 119330
+        Repeated 3 Times -> 1385
+        Repeated 4 Times -> 18
+        Repeated 5 Times -> 0
+        Repeated 6 Times -> 0
+        
+        With /30 Subnet
+        Total Unique Subnets: 7738706
+        No repetitions -> 7513290 
+        Repeated 2 Times -> 220281
+        Repeated 3 Times -> 5036
+        Repeated 4 Times -> 97
+        Repeated 5 Times -> 2
+        Repeated 6 Times -> 0
+        
+        With /29 Subnet
+        Total Unique Subnets: 7738706
+        No repetitions -> 7513290 
+        Repeated 2 Times -> 220281
+        Repeated 3 Times -> 5036
+        Repeated 4 Times -> 97
+        Repeated 5 Times -> 2
+        Repeated 6 Times -> 0
+        
 
 """
 
 
 main()
-
-
-
+#print 
 
 
 
