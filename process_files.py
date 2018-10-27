@@ -254,7 +254,7 @@ def main():
             temp_set.pop()
             for item in temp_set:
                 ip, path_length = item.split(",")
-                ip = apply_mask_on_ip_string(ip,29)
+                ip = apply_mask_on_ip_string(ip,25)
                 try:
                     dict_count[ip].append(path_length)
                 except KeyError:
@@ -270,7 +270,7 @@ def main():
     # print len(dict_count.keys()), count
     # all_count = np.array(all_count)
     # print len(all_count)
-    count_array = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+    count_array = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
     for key in dict_count:
          count_array[len(dict_count[key])-1] += 1
     print sum(count_array) ,count_array
@@ -338,15 +338,85 @@ def main():
         Repeated 6 Times -> 0
         
         With /29 Subnet
-        Total Unique Subnets: 7738706
-        No repetitions -> 7513290 
-        Repeated 2 Times -> 220281
-        Repeated 3 Times -> 5036
-        Repeated 4 Times -> 97
-        Repeated 5 Times -> 2
+        Total Unique Subnets: 7532152
+        No repetitions -> 7114189 
+        Repeated 2 Times -> 399404
+        Repeated 3 Times -> 17897
+        Repeated 4 Times -> 640
+        Repeated 5 Times -> 22
         Repeated 6 Times -> 0
-        
 
+        With /28 Subnet
+        Total Unique Subnets: 7148202
+        No repetitions -> 6396214 
+        Repeated 2 Times -> 687650
+        Repeated 3 Times -> 59820
+        Repeated 4 Times -> 4223
+        Repeated 5 Times -> 278
+        Repeated 6 Times -> 17
+        
+        With /27 Subnet
+        Total Unique Subnets: 6477526
+        No repetitions -> 5223119 
+        Repeated 2 Times -> 1048714
+        Repeated 3 Times -> 177602
+        Repeated 4 Times -> 24851
+        Repeated 5 Times -> 2874
+        Repeated 6 Times -> 332
+        Repeated 7 Times -> 33
+        Repeated 8 Times -> 1
+        
+        With /26 Subnet
+        Total Unique Subnets: 5429332
+        No repetitions -> 3612490 
+        Repeated 2 Times -> 1272985
+        Repeated 3 Times -> 403687
+        Repeated 4 Times -> 108568
+        Repeated 5 Times -> 25366
+        Repeated 6 Times -> 5123
+        Repeated 7 Times -> 930
+        Repeated 8 Times -> 161
+        Repeated 9 Times -> 21
+        Repeated 10 Times -> 1
+
+        With /25 Subnet
+        Total Unique Subnets: 4078270
+        No repetitions -> 1986363 
+        Repeated 2 Times -> 1272985
+        Repeated 3 Times -> 1055572
+        Repeated 4 Times -> 566976
+        Repeated 5 Times -> 278551
+        Repeated 6 Times -> 120984
+        Repeated 7 Times -> 46734
+        Repeated 8 Times -> 16018
+        Repeated 9 Times -> 5080
+        Repeated 10 Times -> 1455
+        Repeated 11 Times -> 407
+        Repeated 12 Times -> 101
+        Repeated 13 Times -> 26
+        Repeated 14 Times -> 1
+        Repeated 15 Times -> 2
+        
+        With /24 Subnet
+        Total Unique Subnets: 2737134
+        No repetitions -> 913132 
+        Repeated 2 Times -> 564942
+        Repeated 3 Times -> 403465
+        Repeated 4 Times -> 298537
+        Repeated 5 Times -> 215601
+        Repeated 6 Times -> 146157
+        Repeated 7 Times -> 90911
+        Repeated 8 Times -> 52215
+        Repeated 9 Times -> 27566
+        Repeated 10 Times -> 13719
+        Repeated 11 Times -> 6242
+        Repeated 12 Times -> 2767
+        Repeated 13 Times -> 1134
+        Repeated 14 Times -> 451
+        Repeated 15 Times -> 61
+        Repeated 16 Times -> 19
+        Repeated 17 Times -> 1
+        
 """
 
 
