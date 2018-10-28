@@ -9,6 +9,7 @@
 """
 import numpy as np
 import seaborn as sns
+import pandas as pd
 import matplotlib.pyplot as plt
 import os,urllib,json
 from multiprocessing import Pool
@@ -171,8 +172,38 @@ def pool_function(cycle_name):
     return True
 
 
+def generate_path_length_dict(subnet):
+    dictionary = {}
+    for cycle_list in os.listdir("."):
+        with open(cycle_list, "rb") as f:
+            temp_set = f.read().split("\n")
+            temp_set.pop()
+            for item in temp_set:
+                ip, path_length = item.split(",")
+                path_length = int(path_length)
+                ip = apply_mask_on_ip_string(ip,subnet)
+                try:
+                    dictionary[ip].append(path_length)
+                except KeyError:
+                    dictionary[ip] = [path_length]
+    return dictionary
 
+def make_cdf_graph_file(data_list,subnet):
+    print "making cdf of subnet {}...".format(subnet)
+    x = np.sort(data_list)
+    y = np.arange(len(x))/float(len(x))
+    data_frame = {"x_axis": x, "y_axis": y}
+    df = pd.DataFrame(data = data_frame)
+    df.to_csv("../graphs/{}.csv".format(subnet), sep='\t', encoding='utf-8')
 
+def pool_function_make_cdf_files(subnet):
+    print "working on files for subnet {}".format(subnet)
+    count_list = generate_path_length_dict(subnet).items()
+    print "working on list comprehension for subnet {}".format(subnet)
+    count_list = filter(lambda x: len(x[1]) > 1 , count_list)
+    count_list = [np.var(np.array(x[1])) for x in count_list] # -> list of lists
+    make_cdf_graph_file(count_list,subnet)
+    return True
 
 def main():
     print "processing files"
@@ -245,35 +276,44 @@ def main():
     # total_4 = 0
     # total_5 = 0
     # all_count = []
-    dict_count = {}
-
-    for cycle_list in os.listdir("."):
-        with open(cycle_list, "rb") as f:
-            print cycle_list
-            temp_set = f.read().split("\n")
-            temp_set.pop()
-            for item in temp_set:
-                ip, path_length = item.split(",")
-                ip = apply_mask_on_ip_string(ip,25)
-                try:
-                    dict_count[ip].append(path_length)
-                except KeyError:
-                    dict_count[ip] = [path_length]
     
-    # with open("../dict_count_path_len.json", "rb") as f:
-    #     dict_count = json.loads(f.read())
-    #count = 0
-    # for key in dict_count.keys():
-    #     if len(dict_count[key]) == 1:
-    #         count += 1
-    #         #print key, dict_count[key]
-    # print len(dict_count.keys()), count
-    # all_count = np.array(all_count)
-    # print len(all_count)
-    count_array = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-    for key in dict_count:
-         count_array[len(dict_count[key])-1] += 1
-    print sum(count_array) ,count_array
+    subnet_range = xrange(24,33,1)
+    p = Pool(4)
+    print p.map(pool_function_make_cdf_files, subnet_range)
+        
+    
+    #os.system("sudo shutdown -h now")
+
+
+    # dict_count = {}
+
+    # for cycle_list in os.listdir("."):
+    #     with open(cycle_list, "rb") as f:
+    #         print cycle_list
+    #         temp_set = f.read().split("\n")
+    #         temp_set.pop()
+    #         for item in temp_set:
+    #             ip, path_length = item.split(",")
+    #             ip = apply_mask_on_ip_string(ip,25)
+    #             try:
+    #                 dict_count[ip].append(path_length)
+    #             except KeyError:
+    #                 dict_count[ip] = [path_length]
+    
+    # # with open("../dict_count_path_len.json", "rb") as f:
+    # #     dict_count = json.loads(f.read())
+    # #count = 0
+    # # for key in dict_count.keys():
+    # #     if len(dict_count[key]) == 1:
+    # #         count += 1
+    # #         #print key, dict_count[key]
+    # # print len(dict_count.keys()), count
+    # # all_count = np.array(all_count)
+    # # print len(all_count) 
+    # count_array = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+    # for key in dict_count:
+    #      count_array[len(dict_count[key])-1] += 1
+    # print sum(count_array) ,count_array
 """
     Analysis:
         Data from 1st January 2017 - 28th April 2017
@@ -419,13 +459,13 @@ def main():
         
 """
 
-
+#
 main()
-#print 
-
-
-
-
+#print
+# temp_dict = {"1":[1,2,3,4],"3":[1,2,3,4],"2":[1,2],"4":[1,3,4] }
+# temp_list = filter(lambda x: len(x[1]) < 5, temp_dict.items())
+# temp_list = [np.var(x[1]) for x in temp_list]
+# print temp_list
 
 
 
