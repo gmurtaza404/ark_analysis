@@ -47,7 +47,6 @@ def main():
                 print "failed!"
                 time.sleep(10)
 
-
         for link in child_links:
             all_links.append(link)
 

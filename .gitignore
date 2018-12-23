@@ -8,3 +8,8 @@ all_files_json.txt
 failed.txt
 archive
 *.csv
+traceroute_data
+tmp
+results
+whitelist.txt
+
